@@ -947,24 +947,22 @@
       request.onerror = networkError;
       request.onload = function () {
         const response = JSON.parse(this.response);
-        const txids = response.txids.slice(0, 5); // Get a maximum of 5 txids
 
+        if (response.txids.length === 0){
+          tableBody.innerHTML = '<tr><td colspan="3">No transactions</td></tr>';
+          $(tableBody).removeClass("large-box loading");
+          return;
+        };
+        const txids = response.txids.slice(0, 5); // Get a maximum of 5 txids
         // Check if the txids are the same as the last stored txids
         if (JSON.stringify(txids) === JSON.stringify(lastTxids)) {
           console.log('Same txids, skipping fetchTransactionDetails');
           return;
         }
-
         // Store the current txids in the global variable
         lastTxids = txids;
-
-        // Call fetchTransactionDetails if txids are different
-        if (txids.length > 0) {
-          fetchTransactionDetails(txids, tableBody);
-        } else {
-          tableBody.innerHTML = '<tr><td colspan="3">No transactions</td></tr>';
-          $(tableBody).removeClass("large-box loading");
-        }
+        // Call fetchTransactionDetails if txids are different 
+        fetchTransactionDetails(txids, tableBody); 
       };
       request.send();
     }
